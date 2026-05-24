@@ -9,6 +9,9 @@ public class LaberintoGrafico extends JPanel {
     private long fin;
     private final int TAM = 30;
     private int[][] laberinto;
+    private int nodosExplorados = 0;
+    private int profundidadActual = 0;
+    private int profundidadMaxima = 0;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -103,7 +106,7 @@ public class LaberintoGrafico extends JPanel {
         ventana.add(panel);
         ventana.setSize(
                 panel.laberinto[0].length * panel.TAM + 50,
-                panel.laberinto.length    * panel.TAM + 50
+                panel.laberinto.length    * panel.TAM + 110
         );
         ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ventana.setVisible(true);
@@ -135,33 +138,44 @@ public class LaberintoGrafico extends JPanel {
 
     public boolean resolver(int fila, int col) {
         llamadas++;
+        profundidadActual++;                                          // sube al entrar
+        if (profundidadActual > profundidadMaxima)
+            profundidadMaxima = profundidadActual;
+
         repaint();
         dormir();
 
-        if (fila < 0 || col < 0 || fila >= laberinto.length || col >= laberinto[0].length)
+        if (fila < 0 || col < 0 || fila >= laberinto.length || col >= laberinto[0].length) {
+            profundidadActual--;                                      // baja al salir
             return false;
+        }
 
-        if (laberinto[fila][col] == 1 || laberinto[fila][col] == 9 || laberinto[fila][col] == 5)
+        if (laberinto[fila][col] == 1 || laberinto[fila][col] == 9 || laberinto[fila][col] == 5) {
+            profundidadActual--;
             return false;
+        }
 
-        if (laberinto[fila][col] == 2)
+        if (laberinto[fila][col] == 2) {
+            profundidadActual--;
             return true;
+        }
 
+        nodosExplorados++;                                            // celda vAlida nueva
         laberinto[fila][col] = 9;
         repaint();
         dormir();
-        //RETO #2
+
         if (resolver(fila + 1, col)) return true;
         if (resolver(fila, col - 1)) return true;
         if (resolver(fila - 1, col)) return true;
         if (resolver(fila, col + 1)) return true;
-
 
         retrocesos++;
         laberinto[fila][col] = 5;
         repaint();
         dormir();
 
+        profundidadActual--;                                          // baja al retroceder
         return false;
     }
 
@@ -171,6 +185,7 @@ public class LaberintoGrafico extends JPanel {
         super.paintComponent(g);
         if (laberinto == null) return;
 
+        // --- dibujar laberinto (igual que antes) ---
         for (int fila = 0; fila < laberinto.length; fila++) {
             for (int col = 0; col < laberinto[0].length; col++) {
                 switch (laberinto[fila][col]) {
@@ -185,5 +200,23 @@ public class LaberintoGrafico extends JPanel {
                 g.drawRect(col * TAM, fila * TAM, TAM, TAM);
             }
         }
+
+        // --- panel de estadisticas abajo RETO 4---
+        int panelY = laberinto.length * TAM + 5;   // justo debajo del laberinto
+
+        g.setColor(new Color(30, 30, 30));
+        g.fillRect(0, panelY, getWidth(), 60);      // fondo oscuro
+
+        g.setFont(new Font("Consolas", Font.BOLD, 13));
+
+        g.setColor(Color.WHITE);
+        g.drawString("Llamadas recursivas: " + llamadas,       10, panelY + 18);
+
+        g.setColor(Color.YELLOW);
+        g.drawString("Nodos explorados:    " + nodosExplorados, 10, panelY + 34);
+
+        g.setColor(Color.CYAN);
+        g.drawString("Profundidad actual:  " + profundidadActual
+                + "   |   Máxima: " + profundidadMaxima,    10, panelY + 50);
     }
 }

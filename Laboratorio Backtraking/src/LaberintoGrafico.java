@@ -16,9 +16,11 @@ public class LaberintoGrafico extends JPanel {
         System.out.println("1. Probar con laberinto 5x5");
         System.out.println("2. Probar con laberinto 10x10");
         System.out.println("3. Probar con laberinto 20x20");
+        System.out.println("4. Probar con laberinto sin solucion 5x5");
+        System.out.println("5. Probar con laberinto sin solucion10x10");
         System.out.println("Ingrese opcion");
         LaberintoGrafico panel = new LaberintoGrafico();
-
+        //RETO #1 Y #3
         switch (sc.nextLine()) {
             case "1":
                 panel.laberinto = new int[][] {
@@ -65,6 +67,31 @@ public class LaberintoGrafico extends JPanel {
                         {0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
                         {1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
                         {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2}
+                };
+                break;
+
+            case "4":
+                panel.laberinto = new int[][] {
+                        {0, 0, 0, 1, 0},
+                        {0, 1, 0, 1, 0},
+                        {0, 0, 0, 1, 0},
+                        {1, 1, 1, 1, 0},
+                        {0, 0, 0, 0, 2}
+                };
+                break;
+
+            case "5":
+                panel.laberinto = new int[][] {
+                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                        {0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
+                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                        {1, 0, 1, 0, 0, 1, 0, 1, 0, 1},
+                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                        {0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
+                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                        {0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
+                        {0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 2}
                 };
                 break;
             default:
@@ -123,6 +150,7 @@ public class LaberintoGrafico extends JPanel {
         laberinto[fila][col] = 9;
         repaint();
         dormir();
+        //RETO #2
         if (resolver(fila + 1, col)) return true;
         if (resolver(fila, col - 1)) return true;
         if (resolver(fila - 1, col)) return true;

@@ -123,11 +123,11 @@ public class LaberintoGrafico extends JPanel {
         laberinto[fila][col] = 9;
         repaint();
         dormir();
-
-        if (resolver(fila - 1, col)) return true;
-        if (resolver(fila, col + 1)) return true;
         if (resolver(fila + 1, col)) return true;
         if (resolver(fila, col - 1)) return true;
+        if (resolver(fila - 1, col)) return true;
+        if (resolver(fila, col + 1)) return true;
+
 
         retrocesos++;
         laberinto[fila][col] = 5;

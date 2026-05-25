@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
-import java.util.Scanner;
 import java.util.Arrays;
+import java.util.Scanner;
+import javax.swing.*;
 
 public class LaberintoGrafico extends JPanel {
 
@@ -27,6 +27,73 @@ public class LaberintoGrafico extends JPanel {
     private int filaSalida;
     private int colSalida;
 
+    // generar laberinto aleatorio CON solucion
+    public int[][] generarLaberinto(int filas, int columnas) {
+
+        int[][] lab = new int[filas][columnas];
+
+        // primero se llena todo el laberinto de forma aleatoria
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+
+                // 30% de probabilidad de que una celda sea pared
+                if (Math.random() < 0.3) {
+                    lab[i][j] = 1; // pared
+                } else {
+                    lab[i][j] = 0; // camino libre
+                }
+            }
+        }
+
+        // se crea un camino seguro desde el inicio hasta la salida
+        // esto evita que el laberinto generado quede imposible
+        int fila = 0;
+        int col = 0;
+
+        lab[fila][col] = 0;
+
+        // el camino avanza solamente hacia la derecha o hacia abajo
+        // asi siempre puede llegar desde [0][0] hasta la esquina final
+        while (fila < filas - 1 || col < columnas - 1) {
+
+            if (Math.random() < 0.5 && col < columnas - 1) {
+                col++;
+            } else if (fila < filas - 1) {
+                fila++;
+            }
+
+            // se limpia la celda para asegurar el paso
+            lab[fila][col] = 0;
+        }
+
+        // se marca la salida en la esquina inferior derecha
+        lab[filas - 1][columnas - 1] = 2;
+
+        return lab;
+    }
+
+    // generar laberinto aleatorio SIN solucion
+    public int[][] generarLaberintoSinSolucion(int filas, int columnas) {
+
+        int[][] lab = generarLaberinto(filas, columnas);
+
+        // colocar la salida en la esquina inferior derecha
+        lab[filas - 1][columnas - 1] = 2;
+
+        // cercar la salida por todos lados para que sea imposible llegar
+        // sin importar como quedo el random
+        if (filas - 2 >= 0)
+            lab[filas - 2][columnas - 1] = 1; // bloquear arriba
+
+        if (columnas - 2 >= 0)
+            lab[filas - 1][columnas - 2] = 1; // bloquear izquierda
+
+        if (filas - 2 >= 0 && columnas - 2 >= 0)
+            lab[filas - 2][columnas - 2] = 1; // bloquear diagonal
+
+        return lab;
+    }
+
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -37,7 +104,7 @@ public class LaberintoGrafico extends JPanel {
         System.out.println("2. Probar con laberinto 10x10");
         System.out.println("3. Probar con laberinto 20x20");
         System.out.println("4. Probar con laberinto sin solucion 5x5");
-        System.out.println("5. Probar con laberinto sin solucion10x10");
+        System.out.println("5. Probar con laberinto sin solucion 10x10");
         System.out.println("Ingrese opcion");
 
         LaberintoGrafico panel = new LaberintoGrafico();
@@ -46,90 +113,48 @@ public class LaberintoGrafico extends JPanel {
         switch (sc.nextLine()) {
 
             case "1":
-                // laberinto pequeño 5x5, tiene solucion
-                panel.laberinto = new int[][] {
-                        {0, 0, 1, 0, 0},
-                        {0, 1, 0, 1, 0},
-                        {0, 0, 0, 0, 0},
-                        {1, 0, 1, 1, 0},
-                        {0, 0, 0, 0, 2}
-                };
+                // RETO 1
+                // generar un laberinto aleatorio 5x5
+                // el metodo asegura que siempre exista un camino
+                // desde el inicio hasta la salida
+                panel.laberinto = panel.generarLaberinto(5, 5);
                 break;
 
             case "2":
-                // laberinto mediano 10x10, tiene solucion
-                panel.laberinto = new int[][] {
-                        {0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-                        {0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-                        {1, 0, 1, 1, 0, 1, 0, 0, 0, 0},
-                        {0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                        {0, 1, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {0, 0, 1, 0, 1, 0, 0, 1, 0, 0},
-                        {0, 1, 0, 0, 0, 0, 1, 0, 0, 0},
-                        {0, 0, 0, 1, 0, 0, 0, 0, 1, 0},
-                        {1, 0, 0, 0, 0, 1, 0, 0, 0, 2}
-                };
+                // RETO 1
+                // generar un laberinto aleatorio 10x10
+                // sirve para comparar el impacto del tamanio
+                // en tiempo, llamadas y retrocesos
+                panel.laberinto = panel.generarLaberinto(10, 10);
                 break;
 
             case "3":
-                // laberinto grande 20x20, tiene solucion
-                panel.laberinto = new int[][] {
-                        {0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-                        {0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0},
-                        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-                        {1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1},
-                        {0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0},
-                        {0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0},
-                        {0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0},
-                        {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
-                        {0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                        {0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-                        {0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0},
-                        {1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0},
-                        {0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-                        {0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0},
-                        {0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0},
-                        {1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                        {0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
-                        {1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
-                        {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2}
-                };
+                // RETO 1
+                // generar un laberinto aleatorio 20x20
+                // permite observar un mayor costo computacional
+                // por el aumento de caminos posibles
+                panel.laberinto = panel.generarLaberinto(20, 20);
                 break;
 
             case "4":
-                // laberinto 5x5 SIN solucion
-                // la fila 3 es un muro completo que bloquea el acceso a la salida
-                panel.laberinto = new int[][] {
-                        {0, 0, 0, 1, 0},
-                        {0, 1, 0, 1, 0},
-                        {0, 0, 0, 1, 0},
-                        {1, 1, 1, 1, 0},
-                        {0, 0, 0, 0, 2}
-                };
+                // RETO 3
+                // generar un laberinto aleatorio 5x5
+                // sin solucion, encerrando la salida con paredes
+                // para analizar el aumento de llamadas recursivas
+                panel.laberinto = panel.generarLaberintoSinSolucion(5, 5);
                 break;
 
             case "5":
-                // laberinto 10x10 SIN solucion
-                // la columna 5 es una pared vertical que divide el laberinto en dos
-                // el inicio esta a la izquierda y la salida a la derecha, imposible cruzar
-                panel.laberinto = new int[][] {
-                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
-                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {1, 0, 1, 0, 0, 1, 0, 1, 0, 1},
-                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
-                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                        {0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
-                        {0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 1, 0, 0, 0, 2}
-                };
+                // RETO 3
+                // generar un laberinto aleatorio 10x10
+                // sin solucion, bloqueando el acceso
+                // alrededor de la salida
+                panel.laberinto = panel.generarLaberintoSinSolucion(10, 10);
                 break;
 
             default:
-                System.out.println("Opcion no valida.");
+                // mensaje si el usuario escribe una opcion incorrecta
+                System.out.println("Opcion no valida");
                 return;
         }
 
@@ -139,7 +164,7 @@ public class LaberintoGrafico extends JPanel {
             for (int j = 0; j < panel.laberinto[0].length; j++) {
                 if (panel.laberinto[i][j] == 2) {
                     panel.filaSalida = i;
-                    panel.colSalida  = j;
+                    panel.colSalida = j;
                 }
             }
         }
@@ -149,7 +174,7 @@ public class LaberintoGrafico extends JPanel {
         ventana.add(panel);
         ventana.setSize(
                 panel.laberinto[0].length * panel.TAM + 50,
-                panel.laberinto.length    * panel.TAM + 110  // espacio extra para las estadisticas
+                panel.laberinto.length * panel.TAM + 110 // espacio extra para las estadisticas
         );
         ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ventana.setVisible(true);
@@ -166,8 +191,8 @@ public class LaberintoGrafico extends JPanel {
             System.out.println("Solucion encontrada: " + solucion);
             System.out.println("Llamadas recursivas: " + panel.llamadas);
             System.out.println("Retrocesos:          " + panel.retrocesos);
-            System.out.println("Tiempo (ms):         " +
-                    (panel.fin - panel.inicio) / 1_000_000.0);
+            System.out.println("Tiempo (ms):         "
+                    + (panel.fin - panel.inicio) / 1_000_000.0);
         }).start();
     }
 
@@ -187,8 +212,9 @@ public class LaberintoGrafico extends JPanel {
 
         // actualizar profundidad actual y guardar la maxima alcanzada (RETO 4)
         profundidadActual++;
-        if (profundidadActual > profundidadMaxima)
+        if (profundidadActual > profundidadMaxima) {
             profundidadMaxima = profundidadActual;
+        }
 
         repaint();
         dormir();
@@ -221,20 +247,22 @@ public class LaberintoGrafico extends JPanel {
         // en vez de explorar siempre en el mismo orden, ordenamos los movimientos
         // segun cual nos acerca mas a la salida
         int[][] movimientos = {
-                {fila + 1, col},  // abajo
-                {fila, col + 1},  // derecha
-                {fila - 1, col},  // arriba
-                {fila, col - 1}   // izquierda
+                {fila + 1, col}, // abajo
+                {fila, col + 1}, // derecha
+                {fila - 1, col}, // arriba
+                {fila, col - 1}  // izquierda
         };
 
         // el movimiento con menor distancia a la salida va primero
-        Arrays.sort(movimientos, (a, b) ->
-                distancia(a[0], a[1]) - distancia(b[0], b[1])
+        Arrays.sort(movimientos, (a, b)
+                -> distancia(a[0], a[1]) - distancia(b[0], b[1])
         );
 
         // probar cada movimiento en el orden que decidio la heuristica
         for (int[] mov : movimientos) {
-            if (resolver(mov[0], mov[1])) return true;
+            if (resolver(mov[0], mov[1])) {
+                return true;
+            }
         }
 
         // ninguno funciono, hacemos backtracking
@@ -258,7 +286,9 @@ public class LaberintoGrafico extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (laberinto == null) return;
+        if (laberinto == null) {
+            return;
+        }
 
         // dibujar cada celda del laberinto con su color correspondiente
         for (int fila = 0; fila < laberinto.length; fila++) {
